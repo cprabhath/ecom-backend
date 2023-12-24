@@ -44,13 +44,11 @@ const register = (req, res) => {
             // Sending Activation Email
             emailService
               .sendEmail(req.body.email, "Account Created Successfully", {
-                heading: "Welcome to E-Com",
+                type: "welcome",
+                heading: "Happy Shop",
                 username: req.body.fullName,
-                action: "Login",
                 link: loginUrl,
-                title: "Account Created Successfully",
-                message:
-                  "Your account has been created successfully. Thank you for joining us.",
+                message:"Happy Shop",
               })
               .then((emailSent) => {
                 if (emailSent) {
