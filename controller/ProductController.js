@@ -2,6 +2,7 @@
 
 //-----------------------Importing Packages-------------------------//
 const ProductSchema = require("../model/ProductSchema");
+const ResponseService = require("../services/ResponseService");
 //-----------------------------------------------------------------//
 
 //------------------Product Create----------------//
@@ -14,16 +15,11 @@ const create = (req, resp) => {
     qtyOnHand: req.body.qtyOnHand,
   });
 
-  product
-    .save()
-    .then((data) => {
-      resp.status(200).json({ message: "Product created successfully" });
+  product.save().then(() => {
+      return ResponseService(resp, 200, "Product created successfully");
     })
     .catch((err) => {
-      resp.status(500).json({
-        message:
-          err.message || "Some error occurred while creating the Product.",
-      });
+      return ResponseService(resp, 500, err.message);
     });
 };
 //------------------------------------------------//
@@ -33,17 +29,13 @@ const findById = (req, resp) => {
   ProductSchema.findById({ _id: req.params.id })
     .then((selectedObj) => {
       if (!selectedObj) {
-        resp.status(404).json({
-          message: "Not found Product with id " + req.params.id,
-        });
+        return ResponseService(resp, 404, "Product not found with id " + req.params.id);
       } else {
         resp.json(selectedObj);
       }
     })
     .catch((err) => {
-      resp.status(500).json({
-        message: "Error retrieving Product with id " + req.params.id,
-      });
+      return ResponseService(resp, 500, err.message);
     });
 };
 //------------------------------------------------//
@@ -64,13 +56,9 @@ const update = async (req, resp) => {
     { new: true }
   );
   if (updateData) {
-    resp.status(200).json({
-      message: "Product updated successfully",
-    });
+    return ResponseService(resp, 200, "Product updated successfully");
   } else {
-    resp.status(500).json({
-      message: "Error Product Order with id " + req.params.id,
-    });
+    return ResponseService(resp, 500, "Error updating Product with id " + req.params.id);
   }
 };
 //------------------------------------------------//
@@ -79,13 +67,9 @@ const update = async (req, resp) => {
 const deleteById = async (req, resp) => {
   const deleteData = await ProductSchema.findByIdAndDelete(req.params.id);
   if (deleteData) {
-    resp.status(200).json({
-      message: "Product deleted successfully",
-    });
+    return ResponseService(resp, 200, "Product deleted successfully");
   } else {
-    resp.status(500).json({
-      message: "Error deleting Product with id " + req.params.id,
-    });
+    return ResponseService(resp, 500, "Could not delete Product with id " + req.params.id);
   }
 };
 //------------------------------------------------//
@@ -105,12 +89,13 @@ const findAll = async (req, resp) => {
 
     const skip = (pageNumber - 1) * pageSize;
 
-    const data = await ProductSchema.find(query).limit(pageSize).skip(skip).exec();
+    const data = await ProductSchema.find(query)
+      .limit(pageSize)
+      .skip(skip)
+      .exec();
     resp.status(200).json(data);
   } catch (err) {
-    resp.status(500).json({
-      message: err.message || "Some error occurred while retrieving products.",
-    });
+    return ResponseService(resp, 500, err.message)
   }
 };
 //------------------------------------------------//

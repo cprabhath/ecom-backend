@@ -2,6 +2,7 @@
 
 //-----------------------Importing Packages-------------------------//
 const WishlistSchema = require("../model/WishlistSchema");
+const ResponseService = require("../services/ResponseService");
 //-----------------------------------------------------------------//
 
 //------------------Wishlist Create----------------//
@@ -15,13 +16,14 @@ const create = (req, resp) => {
   wishlist
     .save()
     .then((data) => {
-      resp.status(200).json({ message: "Wishlist created successfully" });
+      if (data) {
+        return ResponseService(resp, 200, "Wishlist created successfully");
+      } else {
+        return ResponseService(resp, 500, err.message);
+      }
     })
     .catch((err) => {
-      resp.status(500).json({
-        message:
-          err.message || "Some error occurred while creating the Wishlist",
-      });
+      return ResponseService(resp, 500, err.message);
     });
 };
 //------------------------------------------------//
@@ -31,17 +33,13 @@ const findById = (req, resp) => {
   WishlistSchema.findById({ _id: req.params.id })
     .then((selectedObj) => {
       if (!selectedObj) {
-        resp.status(404).json({
-          message: "Not found Wishlist with id " + req.params.id,
-        });
+        return ResponseService(resp, 404, "Wishlist not found with id " + req.params.id);
       } else {
         resp.send(selectedObj);
       }
     })
     .catch((err) => {
-      resp.status(500).json({
-        message: "Error retrieving Wishlist with id " + req.params.id,
-      });
+      return ResponseService(resp, 500, err.message);
     });
 };
 //------------------------------------------------//
@@ -59,7 +57,11 @@ const update = async (req, resp) => {
     },
     { new: true }
   );
-  resp.status(200).json({ message: "Wishlist updated successfully" });
+  if (!updateData) {
+    return ResponseService(resp, 404, "Wishlist not found with id " + req.params.id);
+  } else {
+    return ResponseService(resp, 200, "Wishlist updated successfully");
+  }
 };
 //------------------------------------------------//
 
@@ -68,17 +70,13 @@ const deleteById = (req, resp) => {
   WishlistSchema.findByIdAndRemove({ _id: req.params.id })
     .then((data) => {
       if (!data) {
-        resp.status(404).json({
-          message: "Not found Wishlist with id " + req.params.id,
-        });
+        return ResponseService(resp, 404, "Wishlist not found with id " + req.params.id);
       } else {
-        resp.send({ message: "Wishlist deleted successfully" });
+        return ResponseService(resp, 200, "Wishlist deleted successfully");
       }
     })
     .catch((err) => {
-      resp.status(500).json({
-        message: "Could not delete Wishlist with id " + req.params.id,
-      });
+      return ResponseService(resp, 500, err.message);
     });
 };
 //------------------------------------------------//
@@ -90,10 +88,7 @@ const findAll = (req, resp) => {
       resp.send(data);
     })
     .catch((err) => {
-      resp.status(500).json({
-        message:
-          err.message || "Some error occurred while retrieving Wishlist.",
-      });
+      return ResponseService(resp, 500, err.message);
     });
 };
 //------------------------------------------------//
@@ -105,10 +100,7 @@ const count = (req, resp) => {
       resp.send(data.toString());
     })
     .catch((err) => {
-      resp.status(500).json({
-        message:
-          err.message || "Some error occurred while retrieving Wishlist.",
-      });
+      return ResponseService(resp, 500, err.message);
     });
 };
 //------------------------------------------------//

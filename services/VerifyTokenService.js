@@ -14,6 +14,7 @@ const verifyToken = (token) => {
         jwt.verify(token, secretKey, (err, decoded) => {
             if (err) {
                 reject(err.message);
+                return
             } else {
                 resolve(decoded);
             }

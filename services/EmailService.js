@@ -1,8 +1,21 @@
 // Configure email
 const nodeMailer = require('nodemailer');
+const fs = require('fs');
+const path = require('path');
 
 //------------------ Send Email ------------------//
-const sendEmail = async (to, subject, htmlContent) => {
+const sendEmail = async (to, subject, data) => {
+
+    const templatePath = path.join(__dirname, '../templetes/MailTemplete.html');
+    let htmlContent = fs.readFileSync(templatePath, 'utf8');
+
+    htmlContent = htmlContent.replace('{{heading}}', data.heading);
+    htmlContent = htmlContent.replace('{{username}}', data.username);
+    htmlContent = htmlContent.replace('{{link}}', data.link);
+    htmlContent = htmlContent.replace('{{action}}', data.action);
+    htmlContent = htmlContent.replace('{{title}}', data.title);
+    htmlContent = htmlContent.replace('{{message}}', data.message);
+
     const transporter = nodeMailer.createTransport({
         service: 'gmail',
         auth: {

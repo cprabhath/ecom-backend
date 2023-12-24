@@ -3,19 +3,20 @@
 //-----------------Importing Packages----------------//
 const express = require("express");
 const wishlistController = require("../controller/WishlistController");
+const verifyToken = require("../middleware/VerifyTokenMiddleware");
 const router = express.Router();
 //---------------------------------------------------//
 
 //------------------Wishlist Routes----------------//
-router.post("/create", wishlistController.create);
+router.post("/create", verifyToken, wishlistController.create);
 
-router.get("/find-by-id/:id", wishlistController.findById);
+router.get("/find-by-id/:id", verifyToken, wishlistController.findById);
 
-router.delete("/delete-by-id/:id", wishlistController.deleteById);
+router.delete("/delete-by-id/:id", verifyToken, wishlistController.deleteById);
 
-router.put("/update/:id", wishlistController.update);
+router.put("/update/:id", verifyToken, wishlistController.update);
 
-router.get("/find-all", wishlistController.findAll);
+router.get("/find-all", verifyToken, wishlistController.findAll);
 //-------------------------------------------------//
 
 //------------------Export module----------------//

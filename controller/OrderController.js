@@ -2,6 +2,7 @@
 
 //-----------------------Importing Packages-------------------------//
 const OrderSchema = require("../model/OrdersSchema");
+const ResponseService = require("../services/ResponseService");
 //-----------------------------------------------------------------//
 
 //------------------Order create----------------//
@@ -16,12 +17,14 @@ const create = (req, resp) => {
   order
     .save()
     .then((data) => {
-      resp.status(200).json({ message: "Order created successfully" });
+      if (data) {
+        return ResponseService(resp, 200, "Order created successfully");
+      } else {
+        return ResponseService(resp, 500, err.message);
+      }
     })
     .catch((err) => {
-      resp.status(500).json({
-        message: err.message || "Some error occurred while creating the Order",
-      });
+      return ResponseService(resp, 500, err.message);
     });
 };
 //---------------------------------------------//
@@ -31,17 +34,17 @@ const findById = (req, resp) => {
   OrderSchema.findById({ _id: req.params.id })
     .then((selectedObj) => {
       if (!selectedObj) {
-        resp.status(404).json({
-          message: "Not found Order with id " + req.params.id,
-        });
+        return ResponseService(
+          resp,
+          404,
+          "Order not found with id " + req.params.id
+        );
       } else {
         resp.json(selectedObj);
       }
     })
     .catch((err) => {
-      resp.status(500).json({
-        message: "Error retrieving Order with id " + req.params.id,
-      });
+      return ResponseService(resp, 500, err.message);
     });
 };
 //---------------------------------------------//
@@ -61,11 +64,13 @@ const update = async (req, resp) => {
     { new: true }
   );
   if (updateData) {
-    resp.status(200).json({ message: "Order updated successfully" });
+    return ResponseService(resp, 200, "Order updated successfully");
   } else {
-    resp.status(500).json({
-      message: "Error updating Order with id " + req.params.id,
-    });
+    return ResponseService(
+      resp,
+      500,
+      "Error updating Order with id " + req.params.id
+    );
   }
 };
 //---------------------------------------------//
@@ -74,11 +79,13 @@ const update = async (req, resp) => {
 const deleteById = async (req, resp) => {
   const deleteData = await OrderSchema.findByIdAndDelete(req.params.id);
   if (deleteData) {
-    resp.status(200).json({ message: "Order deleted successfully" });
+    return ResponseService(resp, 200, "Order deleted successfully");
   } else {
-    resp.status(500).json({
-      message: "Error deleting Order with id " + req.params.id,
-    });
+    return ResponseService(
+      resp,
+      500,
+      "Error deleting Order with id " + req.params.id
+    );
   }
 };
 //---------------------------------------------//
@@ -101,9 +108,7 @@ const findAll = (req, resp) => {
     const data = OrderSchema.find(query).limit(pageSize).skip(skip);
     resp.status(200).json(data);
   } catch (err) {
-    resp.status(500).json({
-      message: err.message || "Some error occurred while retrieving order.",
-    });
+    return ResponseService(resp, 500, err.message);
   }
 };
 //---------------------------------------------//

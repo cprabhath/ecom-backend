@@ -31,6 +31,7 @@ const DATABASE_NAME = process.env.DATABASE_NAME;
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
+
 //--------------------------------------------------------//
 
 //------------------ Connect to MongoDB ------------------//

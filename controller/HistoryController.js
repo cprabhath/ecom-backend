@@ -2,6 +2,7 @@
 
 //-----------------------Importing Packages-------------------------//
 const HistorySchema = require("../model/HistorySchema");
+const ResponseService = require("../services/ResponseService");
 //-----------------------------------------------------------------//
 
 //------------------History Create----------------//
@@ -15,13 +16,14 @@ const create = (req, resp) => {
   history
     .save()
     .then((data) => {
-      resp.status(200).json({ message: "History created successfully" });
+      if (data) {
+        return ResponseService(resp, 200, "History created successfully");
+      } else {
+        return ResponseService(resp, 500, err.message);
+      }
     })
     .catch((err) => {
-      resp.status(500).json({
-        message:
-          err.message || "Some error occurred while creating the History",
-      });
+      return ResponseService(resp, 500, err.message);
     });
 };
 //------------------------------------------------//
@@ -31,17 +33,17 @@ const findById = (req, resp) => {
   HistorySchema.findById({ _id: req.params.id })
     .then((selectedObj) => {
       if (!selectedObj) {
-        resp.status(404).json({
-          message: "Not found History with id " + req.params.id,
-        });
+        return ResponseService(
+          resp,
+          404,
+          "History not found with id " + req.params.id
+        );
       } else {
         resp.send(selectedObj);
       }
     })
     .catch((err) => {
-      resp.status(500).json({
-        message: "Error retrieving History with id " + req.params.id,
-      });
+      return ResponseService(resp, 500, err.message);
     });
 };
 //------------------------------------------------//
@@ -53,10 +55,7 @@ const findAll = (req, resp) => {
       resp.send(data);
     })
     .catch((err) => {
-      resp.status(500).json({
-        message:
-          err.message || "Some error occurred while retrieving History.",
-      });
+      return ResponseService(resp, 500, err.message);
     });
 };
 //------------------------------------------------//
@@ -66,17 +65,17 @@ const deleteById = (req, resp) => {
   HistorySchema.findByIdAndRemove(req.params.id)
     .then((selectedObj) => {
       if (!selectedObj) {
-        resp.status(404).json({
-          message: "Not found History with id " + req.params.id,
-        });
+        return ResponseService(
+          resp,
+          404,
+          "History not found with id " + req.params.id
+        );
       } else {
-        resp.send({ message: "History deleted successfully!" });
+        return ResponseService(resp, 200, "History deleted successfully");
       }
     })
     .catch((err) => {
-      resp.status(500).json({
-        message: "Could not delete History with id " + req.params.id,
-      });
+      return ResponseService(resp, 500, err.message);
     });
 };
 //------------------------------------------------//
