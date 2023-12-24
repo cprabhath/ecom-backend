@@ -20,7 +20,7 @@ const create = (req, resp) => {
     .catch((err) => {
       resp.status(500).json({
         message:
-          err.message || "Some error occurred while creating the Cart",
+          err.message || "Some error occurred while creating the Cartlist",
       });
     });
 };
@@ -65,7 +65,7 @@ const update = async (req, resp) => {
     .catch((err) => {
       resp.status(500).json({
         message:
-          err.message || "Some error occurred while updating the Cart",
+          err.message || "Some error occurred while updating the Cartlist",
       });
     });
 };
@@ -80,7 +80,7 @@ const deleteById = (req, resp) => {
     .catch((err) => {
       resp.status(500).json({
         message:
-          err.message || "Some error occurred while deleting the Cart",
+          err.message || "Some error occurred while deleting the Cartlist",
       });
     });
 };
@@ -95,7 +95,7 @@ const findAll = (req, resp) => {
     .catch((err) => {
       resp.status(500).json({
         message:
-          err.message || "Some error occurred while retrieving the Cart",
+          err.message || "Some error occurred while retrieving the Cartlist",
       });
     });
 };
@@ -110,7 +110,7 @@ const count = (req, resp) => {
     .catch((err) => {
       resp.status(500).json({
         message:
-          err.message || "Some error occurred while counting the Cat",
+          err.message || "Some error occurred while counting the Cartlist",
       });
     });
 };
