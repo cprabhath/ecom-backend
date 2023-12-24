@@ -1,7 +1,6 @@
 // Purpose: Check if user is admin or not
 
 //----------------- Importing Packages --------------------//
-const jwt = require("jsonwebtoken");
 const verifyToken = require("../services/VerifyTokenService");
 //--------------------------------------------------------//
 

@@ -1,7 +1,6 @@
 // Purpose: Auth middleware to verify token
 
 //------------------Importing Packages----------------//
-const jwt = require("jsonwebtoken");
 const verifyToken = require("../services/VerifyTokenService");
 //----------------------------------------------------//
 
