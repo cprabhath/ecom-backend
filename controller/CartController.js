@@ -1,38 +1,38 @@
 //Purpose: Cart controller to handle all the request and response
 
 //-----------------------Importing Packages-------------------------//
-const WishlistSchema = require("../model/WishlistSchema");
+const CartSchema = require("../model/CartSchema");
 //-----------------------------------------------------------------//
 
-//------------------Wishlist Create----------------//
+//------------------Cart Create----------------//
 const create = (req, resp) => {
-  const wishlist = new WishlistSchema({
+  const CartSchema = new WishlistSchema({
     name: req.body.name,
     price: req.body.price,
     image: req.body.image,
   });
 
-  wishlist
+  CartSchema
     .save()
     .then((data) => {
-      resp.status(200).json({ message: "Wishlist created successfully" });
+      resp.status(200).json({ message: "Cart created successfully" });
     })
     .catch((err) => {
       resp.status(500).json({
         message:
-          err.message || "Some error occurred while creating the Wishlist",
+          err.message || "Some error occurred while creating the Cart",
       });
     });
 };
 //------------------------------------------------//
 
-//------------------Wishlist Find By Id-----------//
+//------------------Card Find By Id-----------//
 const findById = (req, resp) => {
-  WishlistSchema.findById({ _id: req.params.id })
+  CartSchema.findById({ _id: req.params.id })
     .then((selectedObj) => {
       if (!selectedObj) {
         resp.status(404).json({
-          message: "Not found Wishlist with id " + req.params.id,
+          message: "Not found cart with id " + req.params.id,
         });
       } else {
         resp.send(selectedObj);
@@ -40,15 +40,15 @@ const findById = (req, resp) => {
     })
     .catch((err) => {
       resp.status(500).json({
-        message: "Error retrieving Wishlist with id " + req.params.id,
+        message: "Error retrieving Card with id " + req.params.id,
       });
     });
 };
 //------------------------------------------------//
 
-//------------------Wishlist Update---------------//
+//------------------Cart Update---------------//
 const update = async (req, resp) => {
-  const updateData = await WishlistSchema.findOneAndUpdate(
+  const updateData = await CartSchema.findOneAndUpdate(
     { _id: req.params.id },
     {
       $set: {
@@ -60,27 +60,27 @@ const update = async (req, resp) => {
     { new: true }
   )
     .then((data) => {
-      resp.status(200).json({ message: "Wishlist updated successfully" });
+      resp.status(200).json({ message: "Card updated successfully" });
     })
     .catch((err) => {
       resp.status(500).json({
         message:
-          err.message || "Some error occurred while updating the Wishlist",
+          err.message || "Some error occurred while updating the Cart",
       });
     });
 };
 //------------------------------------------------//
 
-//------------------Wishlist Delete---------------//
+//------------------Cart Delete---------------//
 const deleteById = (req, resp) => {
-  WishlistSchema.findByIdAndRemove({ _id: req.params.id })
+  CartSchema.findByIdAndRemove({ _id: req.params.id })
     .then((data) => {
-      resp.status(200).json({ message: "Wishlist deleted successfully" });
+      resp.status(200).json({ message: "Cart deleted successfully" });
     })
     .catch((err) => {
       resp.status(500).json({
         message:
-          err.message || "Some error occurred while deleting the Wishlist",
+          err.message || "Some error occurred while deleting the Cart",
       });
     });
 };
@@ -88,18 +88,32 @@ const deleteById = (req, resp) => {
 
 //------------------Wishlist Find All--------------//
 const findAll = (req, resp) => {
-  WishlistSchema.find()
+  CartSchema.find()
     .then((data) => {
       resp.send(data);
     })
     .catch((err) => {
       resp.status(500).json({
         message:
-          err.message || "Some error occurred while retrieving the Wishlist",
+          err.message || "Some error occurred while retrieving the Cart",
       });
     });
 };
 //------------------------------------------------//
+
+//-------------------Cart Count-------------------//
+const count = (req, resp) => {
+  CartSchema.countDocuments()
+    .then((data) => {
+      resp.send(data.toString());
+    })
+    .catch((err) => {
+      resp.status(500).json({
+        message:
+          err.message || "Some error occurred while counting the Cat",
+      });
+    });
+};
 
 //------------------Exporting Functions----------------//
 module.exports = {
@@ -108,5 +122,6 @@ module.exports = {
   update,
   deleteById,
   findAll,
+  count,
 };
 //------------------------------------------------//

@@ -98,6 +98,22 @@ const findAll = (req, resp) => {
 };
 //------------------------------------------------//
 
+//-------------------Wishlist Count----------------//
+const count = (req, resp) => {
+  WishlistSchema.countDocuments()
+    .then((data) => {
+      resp.send(data.toString());
+    })
+    .catch((err) => {
+      resp.status(500).json({
+        message:
+          err.message || "Some error occurred while retrieving Wishlist.",
+      });
+    });
+};
+//------------------------------------------------//
+
+
 //------------------Exporting Functions------------//
 module.exports = {
   create,
@@ -105,5 +121,6 @@ module.exports = {
   update,
   deleteById,
   findAll,
+  count,
 };
 //------------------------------------------------//
