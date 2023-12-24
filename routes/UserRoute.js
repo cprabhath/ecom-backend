@@ -10,6 +10,10 @@ const router = express.Router();
 router.post("/register", userController.register);
 
 router.post("/login", userController.login);
+
+router.post('/forgot', userController.forgotPassword);
+
+router.post('/reset/:token', userController.resetPassword);
 //--------------------------------------------//
 
 //------------------Export module----------------//

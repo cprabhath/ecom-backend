@@ -2,14 +2,11 @@
 
 //------------------Importing Packages----------------//
 const jwt = require("jsonwebtoken");
+const verifyToken = require("../services/VerifyTokenService");
 //----------------------------------------------------//
 
-//------------------Secret Key--------------------//
-const secretKey = process.env.SECRET_KEY;
-//------------------------------------------------//
-
 //------------------Auth Middleware----------------//
-const verifyToken = (req, res, next) => {
+const verifyUserToken = async (req, res, next) => {
   const token = req.headers.authorization;
   if (!token) {
     res.status(403).json({
@@ -17,22 +14,24 @@ const verifyToken = (req, res, next) => {
     });
   } else {
     //verify token
-    jwt.verify(token, secretKey, (err, decoded) => {
-      //check if error
-      if (err) {
-        res.status(401).json({
-          message: err.message,
+    try {
+      const decoded = await verifyToken(token);
+      if (!decoded) {
+        res.status(403).json({
+          message: "token is invalid",
         });
       } else {
-        //check user role
-        req.user = { role: decoded.role };
         next();
       }
-    });
+    } catch (error) {
+      res.status(403).json({
+        message: error,
+      });
+    }
   }
 };
 //------------------------------------------------//
 
 //------------------Export module----------------//
-module.exports = verifyToken;
+module.exports = verifyUserToken;
 //------------------------------------------------//

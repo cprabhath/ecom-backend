@@ -3,7 +3,7 @@
 //-----------------Importing Packages----------------//
 const express = require("express");
 const orderController = require("../controller/OrderController");
-const verifyToken = require("../middleware/AuthMiddleware");
+const verifyToken = require("../middleware/VerifyTokenMiddleware");
 const router = express.Router();
 //---------------------------------------------------//
 

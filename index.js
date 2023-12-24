@@ -14,9 +14,11 @@ const app = express();
 
 //----------------- route variables ------------------------//
 const UserRoute = require("./routes/UserRoute");
-const CustomerRoute = require("./routes/CustomerRoute");
 const OrderRoute = require("./routes/OrderRoute");
 const ProductRoute = require("./routes/ProductRoute");
+const WishlistRoute = require("./routes/wishlistRoute");
+const HistoryRoute = require("./routes/HistoryRoute");
+const CartRoute = require("./routes/CartRoute");
 //---------------------------------------------------------//
 
 //----------------- Environment Variables -----------------//
@@ -53,8 +55,10 @@ app.listen(PORT, () => {
 //------------------------------------------------------//
 
 //------------------------ Routes ----------------------//
-app.use("/api/v1/customers", CustomerRoute);
 app.use("/api/v1/orders", OrderRoute);
 app.use("/api/v1/products", ProductRoute);
 app.use("/api/v1/users", UserRoute);
+app.use("/api/v1/wishlist", WishlistRoute);
+app.use("/api/v1/history", HistoryRoute);
+app.use("/api/v1/cart", CartRoute);
 //------------------------------------------------------//

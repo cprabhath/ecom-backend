@@ -3,18 +3,18 @@
 //-----------------Importing Packages----------------//
 const express = require("express");
 const productController = require("../controller/ProductController");
-const verifyToken = require("../middleware/AuthMiddleware");
+const verifyToken = require("../middleware/VerifyTokenMiddleware");
 const router = express.Router();
-const checkRole = require("../middleware/CheckUserMiddleware");
+const checkRole = require("../middleware/CheckAdminMiddleware");
 //---------------------------------------------------//
 
 //------------------Product Routes----------------//
 //-----------------Access Level: Admin----------------//
-router.post("/create", verifyToken, checkRole, productController.create);
+router.post("/create", checkRole, productController.create);
 
-router.delete("/delete-by-id/:id", verifyToken, checkRole, productController.deleteById);
+router.delete("/delete-by-id/:id", checkRole, productController.deleteById);
 
-router.put("/update/:id", verifyToken, checkRole, productController.update);
+router.put("/update/:id", checkRole, productController.update);
 
 //-----------------Access Level: User----------------//
 router.get("/find-by-id/:id", verifyToken, productController.findById);
