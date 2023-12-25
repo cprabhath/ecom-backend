@@ -1,48 +1,47 @@
 // Configure email
-const nodeMailer = require('nodemailer');
-const fs = require('fs');
-const path = require('path');
+const nodeMailer = require("nodemailer");
+const fs = require("fs");
+const path = require("path");
+const ResponseService = require("./ResponseService");
+const handlebars = require("handlebars");
 
 //------------------ Send Email ------------------//
-const sendEmail = async (to, subject, data) => {
+const sendEmail = async (res, to, subject, data) => {
+  try {
+    const templatePath = path.join(
+      __dirname,
+      "../templetes/EmailTemplete.html"
+    );
+    let htmlContent = fs.readFileSync(templatePath, "utf8");
 
-    const templatePath = path.join(__dirname, '../templetes/WelcomeEmail.html');
-    let htmlContent = fs.readFileSync(templatePath, 'utf8');
-
-    htmlContent = htmlContent.replace('{{heading}}', data.heading);
-    htmlContent = htmlContent.replace('{{username}}', data.username);
-    htmlContent = htmlContent.replace('{{link}}', data.link);
-    htmlContent = htmlContent.replace('{{message}}', data.message);
+    const template = handlebars.compile(htmlContent);
+    const htmlToSend = template(data);
 
     const transporter = nodeMailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASSWORD,
-        },
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
+      },
     });
 
     const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: to,
-        subject: subject,
-        html: htmlContent,
+      from: process.env.EMAIL_USER,
+      to: to,
+      subject: subject,
+      html: htmlToSend,
     };
 
-    try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log('Email sent: ' + info.response);
-        return true;
-    } catch (error) {
-        console.error('Error sending email:', error);
-        return false;
-    }
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    return ResponseService(res, 500, error.message);
+  }
 };
 //----------------------------------------------//
 
-
 //------------------ Export Module--------------//
 module.exports = {
-    sendEmail
+  sendEmail,
 };
 //----------------------------------------------//

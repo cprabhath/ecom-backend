@@ -43,12 +43,12 @@ const register = (req, res) => {
             });
             // Sending Activation Email
             emailService
-              .sendEmail(req.body.email, "Account Created Successfully", {
-                type: "welcome",
-                heading: "Happy Shop",
+              .sendEmail(res, req.body.email, "Account Created Successfully", {
+                heading: "Welcome to Happy Shop",
+                action: "Login to your account",
                 username: req.body.fullName,
                 link: loginUrl,
-                message:"Happy Shop",
+                message:"Thank you for signing up for Happy Shop. We're really happy to have you! Click the link below to login to your account.",
               })
               .then((emailSent) => {
                 if (emailSent) {
@@ -138,10 +138,10 @@ const forgotPassword = async (req, res) => {
     user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
 
     const resetUrl = `http://${req.headers.host}/api/v1/users/reset/${token}`;
-    const emailContent = `<p>You requested a password reset. Click on below button to reset your password. This Link only valid for one hour</p>`;
+    const emailContent = `You requested a password reset. Click on below button to reset your password. This Link only valid for one hour`;
 
     emailService
-      .sendEmail(req.body.email, "Reset Password", {
+      .sendEmail(res, req.body.email, "Reset Password", {
         heading: "Reset Password",
         username: "User",
         action: "Reset Password",
@@ -152,11 +152,7 @@ const forgotPassword = async (req, res) => {
       .then((emailSent) => {
         if (emailSent) {
           user.save().then(() => {
-            return ResponseService(
-              res,
-              200,
-              "Password reset link sent to your email."
-            );
+            return ResponseService(res, 200, "Password reset link sent to your email.");
           });
         } else {
           return ResponseService(res, 500, "Error occurred.");
@@ -191,7 +187,7 @@ const resetPassword = async (req, res) => {
     const hash = await bcrypt.hash(req.body.password, salt);
 
     emailService
-      .sendEmail(req.body.email, "Your Password Changed!", {
+      .sendEmail(res, req.body.email, "Your Password Changed!", {
         heading: "Your Password  had just Changed!",
         username: "User",
         action: "Login",
