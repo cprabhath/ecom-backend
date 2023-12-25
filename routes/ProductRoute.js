@@ -10,7 +10,7 @@ const checkRole = require("../middleware/CheckAdminMiddleware");
 
 //------------------Product Routes----------------//
 //-----------------Access Level: Admin----------------//
-router.post("/create", verifyToken, productController.create);
+router.post("/create", checkRole, productController.create);
 
 router.delete("/delete-by-id/:id", checkRole, productController.deleteById);
 
