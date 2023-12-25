@@ -38,39 +38,30 @@ const register = (req, res) => {
               fullName: req.body.fullName,
               email: req.body.email,
               password: hash,
-              activeState: true,
               role: req.body.role || "user",
             });
             // Sending Activation Email
-            emailService
-              .sendEmail(res, req.body.email, "Account Created Successfully", {
-                heading: "Welcome to Happy Shop",
-                action: "Login to your account",
-                username: req.body.fullName,
-                link: loginUrl,
-                message:"Thank you for signing up for Happy Shop. We're really happy to have you! Click the link below to login to your account.",
-              })
-              .then((emailSent) => {
-                if (emailSent) {
-                  user
-                    .save()
-                    .then((result) => {
-                      return ResponseService(
-                        res,
-                        201,
-                        result.fullName + " created successfully"
-                      );
-                    })
-                    .catch((err) => {
-                      return ResponseService(res, 500, err.message);
-                    });
-                } else {
-                  return ResponseService(res, 500, "Error occurred.");
-                }
-              })
-              .catch((err) => {
-                return ResponseService(res, 500, err.message);
+            try {
+              const token = uuidv4();
+              user.emailVerificationToken = token;
+              user.emailVerificationExpires = Date.now() + 3600000;
+          
+              const verificationUrl = `http://${req.headers.host}/api/v1/users/verify/${token}`;
+          
+              const emailContent ="Thank you for signing up for Happy Shop. We're really happy to have you!. Please click on the button below to verify your email address";
+          
+              emailService.sendEmail(res, user.email, "Verify Your Email", {
+                heading: "Email Verification",
+                action: "Verify Email",
+                username: user.fullName,
+                link: verificationUrl,
+                message: emailContent,
               });
+              user.save();
+              return ResponseService(res, 200, "Verification email sent.");
+            } catch (err) {
+              return ResponseService(res, 500, err.message);
+            }
           }
         });
       }
@@ -152,7 +143,11 @@ const forgotPassword = async (req, res) => {
       .then((emailSent) => {
         if (emailSent) {
           user.save().then(() => {
-            return ResponseService(res, 200, "Password reset link sent to your email.");
+            return ResponseService(
+              res,
+              200,
+              "Password reset link sent to your email."
+            );
           });
         } else {
           return ResponseService(res, 500, "Error occurred.");
@@ -215,7 +210,36 @@ const resetPassword = async (req, res) => {
     return ResponseService(res, 500, err.message);
   }
 };
+//----------------------------------------------//
 
+//----------------------Verify Email----------------------//
+
+const verifyEmail = async (req, res) => {
+  try {
+    const user = await UserSchema.findOne({
+      emailVerificationToken: req.params.token,
+      emailVerificationExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return ResponseService(
+        res,
+        401,
+        "Verification token is invalid or has expired."
+      );
+    }
+
+    user.emailVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationExpires = undefined;
+
+    await user.save();
+
+    return ResponseService(res, 200, "Email verified successfully.");
+  } catch (err) {
+    return ResponseService(res, 500, err.message);
+  }
+};
 //----------------------------------------------//
 
 //------------------Exporting modules--------------------//
@@ -224,5 +248,6 @@ module.exports = {
   login,
   forgotPassword,
   resetPassword,
+  verifyEmail,
 };
 //------------------------------------------------------//

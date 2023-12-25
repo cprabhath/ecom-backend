@@ -18,7 +18,7 @@ const CartSchema = new mongooes.Schema({
         type: String,
         required: true
     }
-});
+},  { timestamps: true });
 //------------------------------------------------//
 
 

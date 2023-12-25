@@ -30,7 +30,7 @@ const ProductsSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-});
+}, { timestamps: true });
 //------------------------------------------------//
 
 //------------------Export Schema----------------//

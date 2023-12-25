@@ -18,7 +18,7 @@ const WishlistSchema = new mongooes.Schema({
         type: String,
         required: true
     }
-});
+}, { timestamps: true });
 //------------------------------------------------//
 
 //------------------Export Schema----------------//
