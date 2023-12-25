@@ -37,7 +37,7 @@ app.use(cors());
 //------------------ Connect to MongoDB ------------------//
 try {
   mongoose
-    .connect(`${DB_URL}/${DATABASE_NAME}`)
+    .connect(`${DB_URL}/${DATABASE_NAME}?retryWrites=true&w=majority`)
     .then(() => {
       console.log("MongoDB Connected");
     })
