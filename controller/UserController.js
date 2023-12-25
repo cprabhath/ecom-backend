@@ -11,7 +11,7 @@ const ResponseService = require("../services/ResponseService");
 
 //-----------------Global Variables----------------//
 const salt = 10;
-const loginUrl = `${process.env.BASEURL + process.env.SERVER_PORT}/api/v1/users/login`;
+const loginUrl = `${process.env.BASEURL}/api/v1/users/login`;
 //-------------------------------------------------//
 
 //------------------User Register----------------//
