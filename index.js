@@ -16,7 +16,7 @@ const app = express();
 const UserRoute = require("./routes/UserRoute");
 const OrderRoute = require("./routes/OrderRoute");
 const ProductRoute = require("./routes/ProductRoute");
-const WishlistRoute = require("./routes/wishlistRoute");
+const WishlistRoute = require("./routes/WishlistRoute");
 const HistoryRoute = require("./routes/HistoryRoute");
 const CartRoute = require("./routes/CartRoute");
 //---------------------------------------------------------//
