@@ -56,10 +56,14 @@ app.listen(PORT, () => {
 //------------------------------------------------------//
 
 //------------------------ Routes ----------------------//
-app.use("/api/v1/orders", OrderRoute);
-app.use("/api/v1/products", ProductRoute);
-app.use("/api/v1/users", UserRoute);
-app.use("/api/v1/wishlist", WishlistRoute);
-app.use("/api/v1/history", HistoryRoute);
-app.use("/api/v1/cart", CartRoute);
+try {
+  app.use("/api/v1/orders", OrderRoute);
+  app.use("/api/v1/products", ProductRoute);
+  app.use("/api/v1/users", UserRoute);
+  app.use("/api/v1/wishlist", WishlistRoute);
+  app.use("/api/v1/history", HistoryRoute);
+  app.use("/api/v1/cart", CartRoute);
+} catch (error) {
+  console.log(error.message);
+}
 //------------------------------------------------------//
