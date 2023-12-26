@@ -45,11 +45,12 @@ const register = (req, res) => {
               const token = uuidv4();
               user.emailVerificationToken = token;
               user.emailVerificationExpires = Date.now() + 3600000;
-          
+
               const verificationUrl = `http://${req.headers.host}/api/v1/users/verify/${token}`;
-          
-              const emailContent ="Thank you for signing up for Happy Shop. We're really happy to have you!. Please click on the button below to verify your email address";
-          
+
+              const emailContent =
+                "Thank you for signing up for Happy Shop. We're really happy to have you!. Please click on the button below to verify your email address";
+
               emailService.sendEmail(res, user.email, "Verify Your Email", {
                 heading: "Email Verification",
                 action: "Verify Email",
@@ -58,7 +59,11 @@ const register = (req, res) => {
                 message: emailContent,
               });
               user.save();
-              return ResponseService(res, 200, "Verification email sent.");
+              return ResponseService(
+                res,
+                200,
+                `Welcome to Happy Shop ${req.body.fullName}! Please check your email for activation link.`
+              );
             } catch (err) {
               return ResponseService(res, 500, err.message);
             }
@@ -84,25 +89,31 @@ const login = (req, res) => {
         (err, result) => {
           if (err) {
             return ResponseService(res, 500, err.message);
-          } else {
-            if (result) {
-              // Creating Token
-              const payload = {
-                email: selectedUser.email,
-                userId: selectedUser._id,
-                role: selectedUser.role,
-              };
-              // Secret Key
-              const secretKey = process.env.SECRET_KEY;
-              const expiresIn = "24h";
-              const token = jwt.sign(payload, secretKey, {
-                expiresIn: expiresIn,
-              });
-              // Sending Token
-              return ResponseService(res, 200, token);
-            } else {
-              return ResponseService(res, 401, "Password incorrect");
+          } else if (result) {
+            // Checking Email Verified
+            if (!selectedUser.emailVerified) {
+              return ResponseService(
+                res,
+                401,
+                "Please activate your account first. Check your email for activation link."
+              );
             }
+            // Creating Token
+            const payload = {
+              email: selectedUser.email,
+              userId: selectedUser._id,
+              role: selectedUser.role,
+            };
+            // Secret Key
+            const secretKey = process.env.SECRET_KEY;
+            const expiresIn = "24h";
+            const token = jwt.sign(payload, secretKey, {
+              expiresIn: expiresIn,
+            });
+            // Sending Token
+            return ResponseService(res, 200, token);
+          } else {
+            return ResponseService(res, 401, "Incorrect password");
           }
         }
       );
@@ -123,8 +134,13 @@ const forgotPassword = async (req, res) => {
         404,
         "No account with that email address exists."
       );
+    } else if (user.emailVerified === false) {
+      return ResponseService(
+        res,
+        401,
+        "Please activate your account first. Check your email for activation link."
+      );
     }
-
     user.resetPasswordToken = token;
     user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
 
