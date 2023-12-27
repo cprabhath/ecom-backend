@@ -111,7 +111,7 @@ const login = (req, res) => {
               expiresIn: expiresIn,
             });
             // Sending Token
-            return ResponseService(res, 200, token);
+            return ResponseService(res, 200, {token, selectedUser});
           } else {
             return ResponseService(res, 401, "Incorrect password");
           }

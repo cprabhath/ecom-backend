@@ -2,15 +2,14 @@
 
 //----------------- Importing Packages --------------------//
 const verifyToken = require("../services/VerifyTokenService");
+const ResponseService = require("../services/ResponseService");
 //--------------------------------------------------------//
 
 //------------------ Check User Middleware ----------------//
 const CheckAdmin = async (req, res, next) => {
   const token = req.headers.authorization;
   if (!token) {
-    return res.status(403).json({
-      message: "Token is missing",
-    });
+    ResponseService(res, 403, "Token is missing");
   }
   //verify token
   const decoded = await verifyToken(token);
@@ -19,14 +18,10 @@ const CheckAdmin = async (req, res, next) => {
     if (decoded.role !== "user") {
       next();
     } else {
-      res.status(403).json({
-        message: "Access denied. You are not an admin",
-      });
+      ResponseService(res, 403, "You are not admin");
     }
   } catch (error) {
-    res.status(403).json({
-      message: error,
-    });
+    ResponseService(res, 403, error);
   }
 };
 //---------------------------------------------------------//
