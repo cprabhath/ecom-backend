@@ -7,7 +7,7 @@ const ResponseService = require("../services/ResponseService");
 
 //------------------ Check User Middleware ----------------//
 const CheckAdmin = async (req, res, next) => {
-  const token = req.headers.authorization;
+  const token = req.headers.authorization.split(" ")[1];
   if (!token) {
     ResponseService(res, 403, "Token is missing");
   }
