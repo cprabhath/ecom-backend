@@ -6,7 +6,7 @@ const verifyToken = require("../services/VerifyTokenService");
 
 //------------------Auth Middleware----------------//
 const verifyUserToken = async (req, res, next) => {
-  const token = req.headers.authorization;
+  const token = req.headers.authorization.split(" ")[1];
   if (!token) {
     res.status(403).json({
       message: "token is missing",
