@@ -39,6 +39,7 @@ const register = (req, res) => {
               email: req.body.email,
               password: hash,
               role: req.body.role || "user",
+              imageUrl: req.body.imageUrl
             });
             // Sending Activation Email
             try {
@@ -258,15 +259,29 @@ const verifyEmail = async (req, res) => {
 };
 //----------------------------------------------//
 
-//-------------------Count Producs-------------------//
+
+//-------------------find all users-------------------//
+const findAll = (req, res) => {
+  UserSchema.find()
+    .then((users) => {
+      return ResponseService(res, 200, users);
+    })
+    .catch((err) => {
+      return ResponseService(res, 500, err.message);
+    });
+};
+//----------------------------------------------------//
+
+//------------------count users-----------------------//
 const count = async (req, res) => {
   try {
-    const count = await UserSchema.countDocuments();
-    return ResponseService(res, 200, count);
+    const data = await UserSchema.countDocuments();
+    res.status(200).json(data);
   } catch (err) {
     return ResponseService(res, 500, err.message);
   }
 };
+//----------------------------------------------------//
 
 //------------------Exporting modules--------------------//
 module.exports = {
@@ -275,5 +290,7 @@ module.exports = {
   forgotPassword,
   resetPassword,
   verifyEmail,
+  findAll,
+  count,
 };
 //------------------------------------------------------//

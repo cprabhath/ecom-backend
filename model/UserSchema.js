@@ -9,13 +9,6 @@ const UsersSchema = new mongoose.Schema({
   fullName: {
     type: String,
     required: true,
-    validate: {
-      validator: function (v) {
-        return /^[a-zA-Z\s]*$/.test(v);
-      },
-      message: (props) =>
-        `Full name should not contain numbers or special characters`,
-    },
   },
 
   email: {
@@ -24,12 +17,6 @@ const UsersSchema = new mongoose.Schema({
     unique: true,
     lowercase: true,
     trim: true,
-    validate: {
-      validator: function (v) {
-        return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v);
-      },
-      message: (props) => `${props.value} is not a valid email address!`,
-    },
   },
 
   password: {
@@ -47,6 +34,11 @@ const UsersSchema = new mongoose.Schema({
   emailVerified: {
     type: Boolean,
     default: false,
+  },
+
+  imageUrl: {
+    type: String,
+    required: false,
   },
 
   emailVerificationToken: String,

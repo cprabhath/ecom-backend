@@ -117,7 +117,7 @@ const findAll = async (req, resp) => {
 //------------------Product Count----------------//
 const count = async (req, resp) => {
   try {
-    const data = await ProductSchema.countDocuments(query);
+    const data = await ProductSchema.countDocuments();
     resp.status(200).json(data);
   } catch (err) {
     return ResponseService(resp, 500, err.message);

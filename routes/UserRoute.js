@@ -11,6 +11,10 @@ router.post("/register", userController.register);
 
 router.post("/login", userController.login);
 
+router.get("/find-all", userController.findAll);
+
+router.get("/count", userController.count);
+
 router.post('/forgot', userController.forgotPassword);
 
 router.post('/reset/:token', userController.resetPassword);
