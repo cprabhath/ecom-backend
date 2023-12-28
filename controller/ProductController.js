@@ -15,7 +15,9 @@ const create = (req, resp) => {
     qtyOnHand: req.body.qtyOnHand,
   });
 
-  product.save().then(() => {
+  product
+    .save()
+    .then(() => {
       return ResponseService(resp, 200, "Product created successfully");
     })
     .catch((err) => {
@@ -29,7 +31,11 @@ const findById = (req, resp) => {
   ProductSchema.findById({ _id: req.params.id })
     .then((selectedObj) => {
       if (!selectedObj) {
-        return ResponseService(resp, 404, "Product not found with id " + req.params.id);
+        return ResponseService(
+          resp,
+          404,
+          "Product not found with id " + req.params.id
+        );
       } else {
         resp.json(selectedObj);
       }
@@ -58,7 +64,11 @@ const update = async (req, resp) => {
   if (updateData) {
     return ResponseService(resp, 200, "Product updated successfully");
   } else {
-    return ResponseService(resp, 500, "Error updating Product with id " + req.params.id);
+    return ResponseService(
+      resp,
+      500,
+      "Error updating Product with id " + req.params.id
+    );
   }
 };
 //------------------------------------------------//
@@ -69,7 +79,11 @@ const deleteById = async (req, resp) => {
   if (deleteData) {
     return ResponseService(resp, 200, "Product deleted successfully");
   } else {
-    return ResponseService(resp, 500, "Could not delete Product with id " + req.params.id);
+    return ResponseService(
+      resp,
+      500,
+      "Could not delete Product with id " + req.params.id
+    );
   }
 };
 //------------------------------------------------//
@@ -95,10 +109,20 @@ const findAll = async (req, resp) => {
       .exec();
     resp.status(200).json(data);
   } catch (err) {
-    return ResponseService(resp, 500, err.message)
+    return ResponseService(resp, 500, err.message);
   }
 };
 //------------------------------------------------//
+
+//------------------Product Count----------------//
+const count = async (req, resp) => {
+  try {
+    const data = await ProductSchema.countDocuments(query);
+    resp.status(200).json(data);
+  } catch (err) {
+    return ResponseService(resp, 500, err.message);
+  }
+};
 
 //------------------Export module----------------//
 module.exports = {
@@ -107,5 +131,6 @@ module.exports = {
   update,
   deleteById,
   findAll,
+  count,
 };
 //------------------------------------------------//

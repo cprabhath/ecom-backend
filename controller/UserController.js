@@ -258,6 +258,16 @@ const verifyEmail = async (req, res) => {
 };
 //----------------------------------------------//
 
+//-------------------Count Producs-------------------//
+const count = async (req, res) => {
+  try {
+    const count = await UserSchema.countDocuments();
+    return ResponseService(res, 200, count);
+  } catch (err) {
+    return ResponseService(res, 500, err.message);
+  }
+};
+
 //------------------Exporting modules--------------------//
 module.exports = {
   register,
