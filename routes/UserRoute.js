@@ -13,11 +13,17 @@ router.post("/login", userController.login);
 
 router.get("/find-all", userController.findAll);
 
+router.get("/find-one/:id", userController.findOne);
+
+router.put("/update/:id", userController.updateUser);
+
+router.delete("/delete/:id", userController.deleteUser);
+
 router.get("/count", userController.count);
 
 router.post('/forgot', userController.forgotPassword);
 
-router.post('/reset/:token', userController.resetPassword);
+router.post('/reset/:token/:email', userController.resetPassword);
 
 router.get('/verify/:token', userController.verifyEmail);
 

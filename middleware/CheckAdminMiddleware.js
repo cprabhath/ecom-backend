@@ -10,18 +10,22 @@ const CheckAdmin = async (req, res, next) => {
   const token = req.headers.authorization.split(" ")[1];
   if (!token) {
     ResponseService(res, 403, "Token is missing");
-  }
-  //verify token
-  const decoded = await verifyToken(token);
-  //check if user is admin
-  try {
-    if (decoded.role !== "user") {
-      next();
-    } else {
-      ResponseService(res, 403, "You are not admin");
+  } else {
+    //verify token
+    try {
+      const decoded = await verifyToken(token);
+      if (!decoded) {
+        ResponseService(res, 403, "Invalid Token");
+      } else {
+        if (decoded.role !== "admin") {
+          ResponseService(res, 403, "You are not admin");
+        } else {
+          next();
+        }
+      }
+    } catch (error) {
+      ResponseService(res, 403, error);
     }
-  } catch (error) {
-    ResponseService(res, 403, error);
   }
 };
 //---------------------------------------------------------//

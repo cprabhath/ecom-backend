@@ -17,7 +17,6 @@ const verifyUserToken = async (req, res, next) => {
       if (!decoded) {
         ResponseService(res, 403, "Invalid Token");
       } else {
-
         next();
       }
     } catch (error) {

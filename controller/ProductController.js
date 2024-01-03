@@ -10,7 +10,7 @@ const create = (req, resp) => {
   const product = new ProductSchema({
     name: req.body.name,
     description: req.body.description,
-    imageUrl: req.body.imageUrl,
+    imageUrls: req.body.imageUrls,
     price: req.body.price,
     qtyOnHand: req.body.qtyOnHand,
   });

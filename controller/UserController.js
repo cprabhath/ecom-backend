@@ -39,7 +39,7 @@ const register = (req, res) => {
               email: req.body.email,
               password: hash,
               role: req.body.role || "user",
-              imageUrl: req.body.imageUrl
+              imageUrl: req.body.imageUrl,
             });
             // Sending Activation Email
             try {
@@ -47,7 +47,7 @@ const register = (req, res) => {
               user.emailVerificationToken = token;
               user.emailVerificationExpires = Date.now() + 3600000;
 
-              const verificationUrl = `http://${req.headers.host}/api/v1/users/verify/${token}`;
+              const verificationUrl = `http://localhost:5173/#/account-activated/${token}`;
 
               const emailContent =
                 "Thank you for signing up for Happy Shop. We're really happy to have you!. Please click on the button below to verify your email address";
@@ -143,9 +143,10 @@ const forgotPassword = async (req, res) => {
       );
     }
     user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    user.resetPasswordExpires = Date.now() + 3600000;
+    const email = encodeURIComponent(user.email);
 
-    const resetUrl = `http://${req.headers.host}/api/v1/users/reset/${token}`;
+    const resetUrl = `http://localhost:5173/#/reset-password/${token}/${email}`;
     const emailContent = `You requested a password reset. Click on below button to reset your password. This Link only valid for one hour`;
 
     emailService
@@ -183,11 +184,11 @@ const forgotPassword = async (req, res) => {
 //----------------------Reset Password----------------------//
 const resetPassword = async (req, res) => {
   try {
-    const user = await UserSchema.findOne({
-      email: req.body.email,
+    const user = await UserSchema.findOneAndUpdate({
+      email: req.params.email,
       resetPasswordToken: req.params.token,
-      resetPasswordExpires: { $gt: Date.now() },
-    });
+      resetPasswordExpires: { $gt: new Date() },
+    }, { new: true });
 
     if (!user) {
       return ResponseService(
@@ -196,6 +197,7 @@ const resetPassword = async (req, res) => {
         "Password reset token is invalid or has expired."
       );
     }
+
     const hash = await bcrypt.hash(req.body.password, salt);
 
     emailService
@@ -230,7 +232,6 @@ const resetPassword = async (req, res) => {
 //----------------------------------------------//
 
 //----------------------Verify Email----------------------//
-
 const verifyEmail = async (req, res) => {
   try {
     const user = await UserSchema.findOne({
@@ -259,7 +260,6 @@ const verifyEmail = async (req, res) => {
 };
 //----------------------------------------------//
 
-
 //-------------------find all users-------------------//
 const findAll = (req, res) => {
   UserSchema.find()
@@ -269,6 +269,52 @@ const findAll = (req, res) => {
     .catch((err) => {
       return ResponseService(res, 500, err.message);
     });
+};
+//----------------------------------------------------//
+
+//-----------------------find one user-----------------//
+const findOne = (req, res) => {
+  UserSchema.findById(req.params.id)
+    .then((user) => {
+      return ResponseService(res, 200, user);
+    })
+    .catch((err) => {
+      return ResponseService(res, 500, err.message);
+    });
+};
+//----------------------------------------------------//
+
+//----------------------update user by id-------------------//
+const updateUser = async (req, res) => {
+  const update = await UserSchema.findOneAndUpdate(
+    { _id: req.params.id },
+    {
+      $set: {
+        fullName: req.body.fullName,
+        password: req.body.password,
+        email: req.body.email,
+        role: req.body.role,
+        imageUrl: req.body.imageUrl,
+      },
+    },
+    { new: true }
+  );
+  if (update) {
+    return ResponseService(res, 200, "User updated successfully.");
+  } else {
+    return ResponseService(res, 500, err.message);
+  }
+};
+//----------------------------------------------------//
+
+//----------------------delete user by id-------------------//
+const deleteUser = async (req, res) => {
+  const deleted = await UserSchema.findOneAndDelete({ _id: req.params.id });
+  if (deleted) {
+    return ResponseService(res, 200, "User deleted successfully.");
+  } else {
+    return ResponseService(res, 500, err.message);
+  }
 };
 //----------------------------------------------------//
 
@@ -291,6 +337,9 @@ module.exports = {
   resetPassword,
   verifyEmail,
   findAll,
+  findOne,
   count,
+  updateUser,
+  deleteUser
 };
 //------------------------------------------------------//

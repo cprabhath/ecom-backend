@@ -19,6 +19,8 @@ const ProductRoute = require("./routes/ProductRoute");
 const WishlistRoute = require("./routes/WishlistRoute");
 const HistoryRoute = require("./routes/HistoryRoute");
 const CartRoute = require("./routes/CartRoute");
+const CategoriesRoute = require("./routes/CategoriesRoute");
+const BrandRoute = require("./routes/BrandRoute");
 //---------------------------------------------------------//
 
 //----------------- Environment Variables -----------------//
@@ -63,6 +65,9 @@ try {
   app.use("/api/v1/wishlist", WishlistRoute);
   app.use("/api/v1/history", HistoryRoute);
   app.use("/api/v1/cart", CartRoute);
+  app.use("/api/v1/categories", CategoriesRoute);
+  app.use("/api/v1/brands", BrandRoute);
+
 } catch (error) {
   console.log(error.message);
 }
