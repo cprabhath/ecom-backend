@@ -6,13 +6,13 @@ const mongoose = require("mongoose");
 
 //------------------Orders Schema----------------//
 const OrdersSchema = new mongoose.Schema({
-  date: {
-    type: Date,
+  orderID: {
+    type: String,
     required: true,
   },
 
-  customerDetails: {
-    type: Object,
+  userID: {
+    type: String,
     required: true,
   },
 
@@ -22,8 +22,14 @@ const OrdersSchema = new mongoose.Schema({
   },
 
   products: {
-    type: Array,
+    type: [],
     required: true,
+  },
+
+  status: {
+    type: String,
+    required: false,
+    default: "Pending"
   },
 }, { timestamps: true });
 //------------------------------------------------//

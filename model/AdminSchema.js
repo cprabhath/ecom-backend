@@ -1,11 +1,11 @@
-// Purpose: to create a schema for the users collection in the database
+// Purpose: to create a schema for the admin collection in the database
 
 //------------------Importing Packages----------------//
 const mongoose = require("mongoose");
 //----------------------------------------------------//
 
-//------------------User Schema----------------//
-const UsersSchema = new mongoose.Schema({
+//------------------Admin Schema----------------//
+const AdminSchema = new mongoose.Schema({
   fullName: {
     type: String,
     required: true,
@@ -21,12 +21,11 @@ const UsersSchema = new mongoose.Schema({
 
   password: {
     type: String,
-    required: true,
+    required: false,
   },
 
   role: {
     type: String,
-    default: "user",
     required: true,
   },
 
@@ -35,25 +34,9 @@ const UsersSchema = new mongoose.Schema({
     default: false,
   },
 
-  address: {
-    type: String,
-    required: false,
-  },
-
-  mobileNumber: {
-    type: String,
-    required: false,
-  },
-
-  gender: {
-    type: String,
-    required: false,
-  },
-
   imageUrl: {
     type: String,
     required: false,
-    default: "https://firebasestorage.googleapis.com/v0/b/react-pos-70e5e.appspot.com/o/ecom%2FOIP.jpeg?alt=media&token=da616759-21c2-474f-b12c-559fded5c607",
   },
 
   emailVerificationToken: String,
@@ -64,5 +47,5 @@ const UsersSchema = new mongoose.Schema({
 //--------------------------------------------//
 
 //------------------Export Schema----------------//
-module.exports = mongoose.model("User", UsersSchema);
+module.exports = mongoose.model("Admin", AdminSchema);
 //-----------------------------------------------//

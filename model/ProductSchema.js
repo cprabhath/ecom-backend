@@ -7,6 +7,16 @@ const mongoose = require("mongoose");
 //------------------Product Schema----------------//
 const ProductsSchema = new mongoose.Schema(
   {
+    category: {
+      type: String,
+      required: true,
+    },
+    
+    brand: {
+      type: String,
+      required: true,
+    },
+
     name: {
       type: String,
       required: true,

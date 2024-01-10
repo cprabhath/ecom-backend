@@ -13,14 +13,16 @@ const app = express();
 //---------------------------------------------------------//
 
 //----------------- route variables ------------------------//
+const AdminRoute = require("./routes/AdminRoute");
 const UserRoute = require("./routes/UserRoute");
 const OrderRoute = require("./routes/OrderRoute");
 const ProductRoute = require("./routes/ProductRoute");
-const WishlistRoute = require("./routes/WishlistRoute");
-const HistoryRoute = require("./routes/HistoryRoute");
 const CartRoute = require("./routes/CartRoute");
 const CategoriesRoute = require("./routes/CategoriesRoute");
 const BrandRoute = require("./routes/BrandRoute");
+const InquiryRoute = require("./routes/InquiryRoute");
+const ReportRoute = require("./routes/ReportRoute");
+const SettingsRoute = require("./routes/SettingsRoute");
 //---------------------------------------------------------//
 
 //----------------- Environment Variables -----------------//
@@ -33,7 +35,6 @@ const DATABASE_NAME = process.env.DATABASE_NAME;
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
-
 //--------------------------------------------------------//
 
 //------------------ Connect to MongoDB ------------------//
@@ -59,15 +60,16 @@ app.listen(PORT, () => {
 
 //------------------------ Routes ----------------------//
 try {
+  app.use("/api/v1/admin", AdminRoute);
   app.use("/api/v1/orders", OrderRoute);
   app.use("/api/v1/products", ProductRoute);
   app.use("/api/v1/users", UserRoute);
-  app.use("/api/v1/wishlist", WishlistRoute);
-  app.use("/api/v1/history", HistoryRoute);
   app.use("/api/v1/cart", CartRoute);
   app.use("/api/v1/categories", CategoriesRoute);
   app.use("/api/v1/brands", BrandRoute);
-
+  app.use("/api/v1/inquiries", InquiryRoute);
+  app.use("/api/v1/reports", ReportRoute);
+  app.use("/api/v1/settings", SettingsRoute);
 } catch (error) {
   console.log(error.message);
 }

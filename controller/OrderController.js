@@ -2,45 +2,70 @@
 
 //-----------------------Importing Packages-------------------------//
 const OrderSchema = require("../model/OrdersSchema");
+const UserSchema = require("../model/UserSchema");
 const ResponseService = require("../services/ResponseService");
+const invoiceEmailService = require("../services/InvoiceEmailService");
 //-----------------------------------------------------------------//
 
 //------------------Order create----------------//
 const create = (req, resp) => {
   const order = new OrderSchema({
-    date: req.body.date,
-    customer: req.body.customer,
+    orderID: req.body.orderID,
+    userID: req.body.userID,
     totalCost: req.body.totalCost,
-    product: req.body.product,
+    products: req.body.products,
   });
 
-  order
-    .save()
-    .then((data) => {
-      if (data) {
-        return ResponseService(resp, 200, "Order created successfully");
-      } else {
-        return ResponseService(resp, 500, err.message);
+  if (!req.body.userID) {
+    return ResponseService(resp, 400, "User ID cannot be empty");
+  }
+
+  UserSchema.findById(req.body.userID)
+    .then((user) => {
+      if (!user) {
+        return ResponseService(resp, 404, "User not found");
       }
+
+      order.save()
+        .then((data) => {
+          if (data) {
+            invoiceEmailService.sendEmail(resp, user.email, "Invoice", {
+              orderID: req.body.orderID,
+              totalCost: req.body.totalCost,
+              products: req.body.products.map(product => ({
+                name: product.name,
+                quantity: product.quantity,
+                price: product.price
+              })),
+            });
+            return ResponseService(resp, 200, "Order created successfully");
+          } else {
+            return ResponseService(resp, 500, "Failed to create order");
+          }
+        })
+        .catch((err) => {
+          return ResponseService(resp, 500, err.message);
+        });
     })
     .catch((err) => {
       return ResponseService(resp, 500, err.message);
     });
 };
+
 //---------------------------------------------//
 
 //------------------Order Find By Id-----------//
 const findById = (req, resp) => {
-  OrderSchema.findById({ _id: req.params.id })
+  OrderSchema.find(req.params.userID)
     .then((selectedObj) => {
       if (!selectedObj) {
         return ResponseService(
           resp,
           404,
-          "Order not found with id " + req.params.id
+          "Order not found with id " + req.params.userID
         );
       } else {
-        resp.json(selectedObj);
+        resp.send(selectedObj);
       }
     })
     .catch((err) => {
@@ -55,10 +80,7 @@ const update = async (req, resp) => {
     { _id: req.params.id },
     {
       $set: {
-        date: req.body.date,
-        customer: req.body.customer,
-        totalCost: req.body.totalCost,
-        product: req.body.product,
+        status: req.body.status
       },
     },
     { new: true }
@@ -92,26 +114,27 @@ const deleteById = async (req, resp) => {
 
 //------------------Order Find All---------------//
 const findAll = (req, resp) => {
-  try {
-    const { searchText, page = 1, size = 10 } = req.params;
-    const pageNumber = parseInt(page);
-    const pageSize = parseInt(size);
-
-    const query = {};
-
-    if (searchText) {
-      query.$text = { $search: searchText };
-    }
-
-    const skip = (pageNumber - 1) * pageSize;
-
-    const data = OrderSchema.find(query).limit(pageSize).skip(skip);
-    resp.status(200).json(data);
-  } catch (err) {
-    return ResponseService(resp, 500, err.message);
-  }
+  OrderSchema.find()
+    .then((data) => {
+      resp.send(data);
+    })
+    .catch((err) => {
+      return ResponseService(resp, 500, err.message);
+    });
 };
 //---------------------------------------------//
+
+//------------------Get count of pending orders---------------//
+const count = (req, resp) => {
+  OrderSchema.find({ status: "Pending" }).countDocuments()
+    .then((data) => {
+      resp.status(200).json(data);
+    })
+    .catch((err) => {
+      return ResponseService(resp, 500, err.message);
+    });
+}
+
 
 //------------------Export module---------------//
 module.exports = {
@@ -120,5 +143,6 @@ module.exports = {
   update,
   deleteById,
   findAll,
+  count
 };
 //---------------------------------------------//

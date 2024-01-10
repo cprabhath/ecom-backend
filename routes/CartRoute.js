@@ -8,17 +8,18 @@ const router = express.Router();
 //---------------------------------------------------//
 
 //------------------Cart Routes----------------//
-router.post("/create", verifyToken, cartController.create);
+router.post("/create", cartController.create);
 
-router.get("/find-by-id/:id", verifyToken, cartController.findById);
+router.get("/find-by-id/:id", cartController.findById);
 
-router.delete("/delete-by-id/:id", verifyToken, cartController.deleteById);
+router.delete("/delete-by-id/:userId/:productId", cartController.deleteById);
 
-router.put("/update/:id", verifyToken, cartController.update);
+router.put("/update/:id", cartController.update);
 
-router.get("/find-all", verifyToken, cartController.findAll);
+router.get("/find-all", cartController.findAll);
 
-router.get("/cart-count", verifyToken, cartController.count);
+router.delete("/delete-all/:id", cartController.deleteByUserId);
+
 //-------------------------------------------------//
 
 //------------------Export module----------------//

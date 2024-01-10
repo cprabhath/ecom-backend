@@ -8,13 +8,12 @@ const ResponseService = require("../services/ResponseService");
 //------------------Cart Create----------------//
 const create = (req, resp) => {
   const cartSchema = new CartSchema({
-    name: req.body.name,
-    price: req.body.price,
-    image: req.body.image,
+    productId: req.body.productId,
+    UserId: req.body.UserId,
   });
-
   cartSchema
-    .save().then(() => {
+    .save()
+    .then(() => {
       return ResponseService(resp, 200, "Cart created successfully");
     })
     .catch((err) => {
@@ -25,10 +24,14 @@ const create = (req, resp) => {
 
 //------------------Card Find By Id-----------//
 const findById = (req, resp) => {
-  CartSchema.findById({ _id: req.params.id })
+  CartSchema.findOne(req.params.UserId)
     .then((selectedObj) => {
       if (!selectedObj) {
-        return ResponseService(resp, 404, "Cart not found with id " + req.params.id);
+        return ResponseService(
+          resp,
+          404,
+          "Cart not found with id " + req.params.UserId
+        );
       } else {
         resp.send(selectedObj);
       }
@@ -42,43 +45,63 @@ const findById = (req, resp) => {
 //------------------Cart Update---------------//
 const update = async (req, resp) => {
   const updateData = await CartSchema.findOneAndUpdate(
-    { _id: req.params.id },
+    { UserId: req.body.UserId },
     {
       $set: {
-        name: req.body.name,
-        price: req.body.price,
-        image: req.body.image,
+        productId: req.body.productId,
       },
     },
     { new: true }
-  )
-    .then((data) => {
-      if (!data) {
-        return ResponseService(resp, 404, "Cart not found with id " + req.params.id);
-      } else {
-        return ResponseService(resp, 200, "Cart updated successfully");
-      }
-    })
-    .catch((err) => {
-      return ResponseService(resp, 500, err.message);
-    });
+  );
+  if (!updateData) {
+    return ResponseService(
+      resp,
+      404,
+      "Cart not found with id " + req.params.id
+    );
+  } else {
+    return ResponseService(resp, 200, "Cart updated successfully");
+  }
 };
 //------------------------------------------------//
 
 //------------------Cart Delete---------------//
 const deleteById = (req, resp) => {
-  CartSchema.findByIdAndRemove({ _id: req.params.id })
-    .then((data) => {
-      if (!data) {
-        return ResponseService(resp, 404, "Cart not found with id " + req.params.id);
+  const userId = req.params.userId;
+  const productId = req.params.productId;
+
+  CartSchema.findOneAndUpdate(
+    { UserId: userId },
+    { $pull: { productId: productId } },
+    { new: true }
+  )
+    .then((updatedCart) => {
+      if (!updatedCart) {
+        return ResponseService(
+          resp,
+          404,
+          `Cart not found for user ID ${userId}`
+        );
+      } else if (!updatedCart.productId.includes(productId)) {
+        return ResponseService(
+          resp,
+          200,
+          "Product removed from cart successfully"
+        );
       } else {
-        return ResponseService(resp, 200, "Cart deleted successfully");
+        return ResponseService(
+          resp,
+          404,
+          `Product ID ${productId} not found in the cart`
+        );
       }
     })
     .catch((err) => {
+      console.error("Error:", err);
       return ResponseService(resp, 500, err.message);
     });
 };
+
 //------------------------------------------------//
 
 //------------------Wishlist Find All--------------//
@@ -93,11 +116,19 @@ const findAll = (req, resp) => {
 };
 //------------------------------------------------//
 
-//-------------------Cart Count-------------------//
-const count = (req, resp) => {
-  CartSchema.countDocuments()
-    .then((data) => {
-      resp.send(data.toString());
+//----------------------cart delete by userID----------------------//
+const deleteByUserId = (req, resp) => {
+  CartSchema.findOneAndDelete(req.params.UserId)
+    .then((selectedObj) => {
+      if (!selectedObj) {
+        return ResponseService(
+          resp,
+          404,
+          "Cart not found with id " + req.params.UserId
+        );
+      } else {
+        ResponseService(resp, 200, "Cart deleted successfully");
+      }
     })
     .catch((err) => {
       return ResponseService(resp, 500, err.message);
@@ -111,6 +142,6 @@ module.exports = {
   update,
   deleteById,
   findAll,
-  count,
+  deleteByUserId,
 };
 //------------------------------------------------//

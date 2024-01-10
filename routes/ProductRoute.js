@@ -17,9 +17,10 @@ router.get("/count", checkRole, productController.count);
 //---------------------------------------------------//
 
 //-----------------Access Level: User----------------//
-router.get("/find-by-id/:id", verifyToken, productController.findById);
-router.get("/find-by-id/:id", verifyToken, productController.findById);
-router.get("/find-all", verifyToken, productController.findAll);
+router.get("/find-by-id/:id", productController.findById);
+router.get("/find-all", productController.findAll);
+router.get('/search', productController.searchProducts)
+router.put('/updateQty/:id', productController.updateQuantity)
 //--------------------------------------------------//
 
 //------------------Export module----------------//

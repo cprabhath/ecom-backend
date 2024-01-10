@@ -140,10 +140,9 @@
                                         <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
 
                                             <div style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;line-height:22px;text-align:left;color:#525252;">
-                                                <p>Hi {{ name }}</p>
+                                                <p>#ORDER ID : {{ orderID }}</p>
 
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam volutpat ut est ac dignissim. Donec pulvinar ligula metus, sed imperdiet quam pretium at. Cras finibus hendrerit magna nec euismod. Ut eget
-                                                    justo vel enim ultrices pharetra. Morbi tellus libero, sollicitudin pulvinar porta ac, auctor sed neque.</p>
+                                                <p style="margin-top: 20px; font-family:'Helvetica Neue',Arial,sans-serif;font-size:16px;line-height:22px;text-align:left;color:#555;">Thank you for your recent order! We're delighted to have the opportunity to serve you. Our team is currently processing your order and we are committed to ensuring it reaches you in perfect condition and as swiftly as possible.</p>
                                             </div>
 
                                         </td>
@@ -158,37 +157,19 @@
                                                     <th style="padding: 0 15px;">Qt.</th>
                                                     <th style="padding: 0 0 0 15px;" align="right">Price</th>
                                                 </tr>
+                                                {{#each products}}
                                                 <tr>
-                                                    <td style="padding: 5px 15px 5px 0;">Item number 1</td>
-                                                    <td style="padding: 0 15px;">1</td>
-                                                    <td style="padding: 0 0 0 15px;" align="right">$100,00</td>
+                                                    <td style="padding: 5px 15px 5px 0;">{{this.name}}</td>
+                                                    <td style="padding: 0 15px;">{{this.quantity}}</td>
+                                                    <td style="padding: 0 0 0 15px;" align="right">LKR {{this.price}}</td>
                                                 </tr>
-                                                <tr>
-                                                    <td style="padding: 0 15px 5px 0;">Shipping + Handling</td>
-                                                    <td style="padding: 0 15px;">1</td>
-                                                    <td style="padding: 0 0 0 15px;" align="right">$10,00</td>
-                                                </tr>
-                                                <tr style="border-bottom:2px solid #ecedee;text-align:left;padding:15px 0;">
-                                                    <td style="padding: 0 15px 5px 0;">Sales Tax</td>
-                                                    <td style="padding: 0 15px;">1</td>
-                                                    <td style="padding: 0 0 0 15px;" align="right">$10,00</td>
-                                                </tr>
+                                                {{/each}}
                                                 <tr style="border-bottom:2px solid #ecedee;text-align:left;padding:15px 0;">
                                                     <td style="padding: 5px 15px 5px 0; font-weight:bold">TOTAL</td>
                                                     <td style="padding: 0 15px;"></td>
-                                                    <td style="padding: 0 0 0 15px; font-weight:bold" align="right">$120,00</td>
+                                                    <td style="padding: 0 0 0 15px; font-weight:bold" align="right">LKR {{ totalCost }}</td>
                                                 </tr>
                                             </table>
-
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-
-                                            <div style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;line-height:16px;text-align:left;color:#a2a2a2;">
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam volutpat ut est ac dignissim. Donec pulvinar ligula metus, sed imperdiet quam pretium at.</p>
-                                            </div>
 
                                         </td>
                                     </tr>

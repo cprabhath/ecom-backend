@@ -1,87 +1,22 @@
-// Used for user registration and login
+// Used for admin and login
 
-//-----------------Importing Packages----------------//
-const UserSchema = require("../model/UserSchema");
+//------------------Importing Packages----------------//
+const AdminSchema = require("../model/AdminSchema");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const emailService = require("../services/EmailService");
 const { v4: uuidv4 } = require("uuid");
 const ResponseService = require("../services/ResponseService");
-//---------------------------------------------------//
+const verifyToken = require("../services/VerifyTokenService");
+//----------------------------------------------------//
 
-//-----------------Global Variables----------------//
 const salt = 10;
-const loginUrl = `${process.env.BASEURL}/api/v1/users/login`;
-//-------------------------------------------------//
-
-//------------------User Register----------------//
-const register = (req, res) => {
-  // Check if the provided role is valid
-  const allowedRoles = ["user"];
-  const role = "user";
-
-  if (!allowedRoles.includes(role)) {
-    return ResponseService(res, 400, "Invalid role provided");
-  } else {
-    // Checking email already exists
-    UserSchema.findOne({ email: req.body.email }).then((user) => {
-      if (user !== null) {
-        return ResponseService(res, 409, "Email already exists");
-      } else {
-        // Hashing Password
-        bcrypt.hash(req.body.password, salt, (err, hash) => {
-          if (err) {
-            return ResponseService(res, 500, err.message);
-          } else {
-            // Creating User
-            const user = new UserSchema({
-              fullName: req.body.fullName,
-              email: req.body.email,
-              password: hash,
-              role: role,
-              address: req.body.address,
-              mobileNumber: req.body.mobileNumber,
-              gender: req.body.gender,
-            });
-            // Sending Activation Email
-            try {
-              const token = uuidv4();
-              user.emailVerificationToken = token;
-              user.emailVerificationExpires = Date.now() + 3600000;
-
-              const verificationUrl = `http://localhost:5173/#/account-activated/${token}`;
-
-              const emailContent =
-                "Thank you for signing up for Happy Shop. We're really happy to have you!. Please click on the button below to verify your email address";
-
-              emailService.sendEmail(res, user.email, "Verify Your Email", {
-                heading: "Email Verification",
-                action: "Verify Email",
-                username: user.fullName,
-                link: verificationUrl,
-                message: emailContent,
-              });
-              user.save();
-              return ResponseService(
-                res,
-                200,
-                `Welcome to Happy Shop ${req.body.fullName}! Please check your email for activation link.`
-              );
-            } catch (err) {
-              return ResponseService(res, 500, err.message);
-            }
-          }
-        });
-      }
-    });
-  }
-};
-//----------------------------------------------//
+const loginUrl = `${process.env.BASEURL}/api/v1/admin/admin-login`;
 
 //------------------User Login------------------//
 const login = (req, res) => {
   // Checking email exists
-  UserSchema.findOne({ email: req.body.email }).then((selectedUser) => {
+  AdminSchema.findOne({ email: req.body.email }).then((selectedUser) => {
     if (selectedUser === null) {
       return ResponseService(res, 404, "Email not found");
     } else {
@@ -125,11 +60,64 @@ const login = (req, res) => {
 };
 //----------------------------------------------//
 
+//-----------------User register-----------------//
+const register = async (req, res) => {
+  try {
+    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+    const token = uuidv4();
+    const user = new AdminSchema({
+      fullName: req.body.fullName,
+      email: req.body.email,
+      password: hashedPassword,
+      role: req.body.role,
+      emailVerificationToken: token,
+      emailVerificationExpires: Date.now() + 3600000,
+    });
+
+    const email = encodeURIComponent(req.body.email);
+    const verifyUrl = `http://localhost:5173/#/verify-email/${token}/${email}`;
+    const emailContent = `Thank you for registering. Please click on below button to verify your email.`;
+
+    emailService
+      .sendEmail(res, req.body.email, "Verify Email", {
+        heading: "Verify Email",
+        username: "User",
+        action: "Verify Email",
+        link: verifyUrl,
+        title: "Verify your email address",
+        message: emailContent,
+      })
+      .then((emailSent) => {
+        if (emailSent) {
+          user
+            .save()
+            .then(() => {
+              return ResponseService(
+                res,
+                200,
+                "Registration successful. Please check your email for verification link."
+              );
+            })
+            .catch((err) => {
+              return ResponseService(res, 500, err.message);
+            });
+        } else {
+          return ResponseService(res, 500, "Error occurred.");
+        }
+      })
+      .catch((err) => {
+        return ResponseService(res, 500, err.message);
+      });
+  } catch (err) {
+    return ResponseService(res, 500, err.message);
+  }
+};
+
 //---------------find email and send reset link----------//
 const forgotPassword = async (req, res) => {
   try {
     const token = uuidv4();
-    const user = await UserSchema.findOne({ email: req.body.email });
+    const user = await AdminSchema.findOne({ email: req.body.email });
 
     if (!user) {
       return ResponseService(
@@ -186,7 +174,7 @@ const forgotPassword = async (req, res) => {
 //----------------------Reset Password----------------------//
 const resetPassword = async (req, res) => {
   try {
-    const user = await UserSchema.findOneAndUpdate(
+    const user = await AdminSchema.findOneAndUpdate(
       {
         email: req.params.email,
         resetPasswordToken: req.params.token,
@@ -236,38 +224,39 @@ const resetPassword = async (req, res) => {
 };
 //----------------------------------------------//
 
-//----------------------Verify Email----------------------//
-const verifyEmail = async (req, res) => {
+//----------------------update user by id-------------------//
+const updateUser = async (req, res) => {
   try {
-    const user = await UserSchema.findOne({
-      emailVerificationToken: req.params.token,
-      emailVerificationExpires: { $gt: Date.now() },
-    });
+    const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
-    if (!user) {
-      return ResponseService(
-        res,
-        401,
-        "Verification token is invalid or has expired."
-      );
+    const update = await AdminSchema.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        $set: {
+          fullName: req.body.fullName,
+          password: hashedPassword,
+          email: req.body.email,
+          role: req.body.role,
+          imageUrl: req.body.imageUrl,
+        },
+      },
+      { new: true }
+    );
+
+    if (update) {
+      return ResponseService(res, 200, "User updated successfully.");
+    } else {
+      return ResponseService(res, 404, "User not found.");
     }
-
-    user.emailVerified = true;
-    user.emailVerificationToken = undefined;
-    user.emailVerificationExpires = undefined;
-
-    await user.save();
-
-    return ResponseService(res, 200, "Email verified successfully.");
   } catch (err) {
     return ResponseService(res, 500, err.message);
   }
 };
-//----------------------------------------------//
+//----------------------------------------------------//
 
 //-------------------find all users-------------------//
 const findAll = (req, res) => {
-  UserSchema.find()
+  AdminSchema.find()
     .then((users) => {
       return ResponseService(res, 200, users);
     })
@@ -277,80 +266,13 @@ const findAll = (req, res) => {
 };
 //----------------------------------------------------//
 
-//-----------------------find one user-----------------//
-const findOne = (req, res) => {
-  UserSchema.findById(req.params.id)
-    .then((user) => {
-      return ResponseService(res, 200, user);
-    })
-    .catch((err) => {
-      return ResponseService(res, 500, err.message);
-    });
-};
-//----------------------------------------------------//
-
-//----------------------update user by id-------------------//
-const updateUser = async (req, res) => {
-  try {
-    const update = await UserSchema.findOneAndUpdate(
-      { _id: req.params.id },
-      {
-        $set: {
-          fullName: req.body.fullName,
-          email: req.body.email,
-          role: req.body.role,
-          address: req.body.address,
-          mobileNumber: req.body.mobileNumber,
-          imageUrl: req.body.imageUrl,
-          gender: req.body.gender,
-        },
-      },
-      { new: true }
-    );
-    if (update) {
-      return ResponseService(res, 200, "User updated successfully.");
-    } else {
-      return ResponseService(res, 500, "An Error occurred");
-    }
-  } catch (error) {
-    return ResponseService(res, 500, error.message);
-  }
-};
-//----------------------------------------------------//
-
-//----------------------delete user by id-------------------//
-const deleteUser = async (req, res) => {
-  const deleted = await UserSchema.findOneAndDelete({ _id: req.params.id });
-  if (deleted) {
-    return ResponseService(res, 200, "User deleted successfully.");
-  } else {
-    return ResponseService(res, 500, err.message);
-  }
-};
-//----------------------------------------------------//
-
-//------------------count users-----------------------//
-const count = async (req, res) => {
-  try {
-    const data = await UserSchema.countDocuments();
-    res.status(200).json(data);
-  } catch (err) {
-    return ResponseService(res, 500, err.message);
-  }
-};
-//----------------------------------------------------//
-
 //------------------Exporting modules--------------------//
 module.exports = {
-  register,
   login,
   forgotPassword,
   resetPassword,
-  verifyEmail,
-  findAll,
-  findOne,
-  count,
   updateUser,
-  deleteUser,
+  findAll,
+  register,
 };
-//------------------------------------------------------//
+//----------------------------------------------------//

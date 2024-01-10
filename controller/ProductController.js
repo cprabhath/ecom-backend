@@ -8,6 +8,8 @@ const ResponseService = require("../services/ResponseService");
 //------------------Product Create----------------//
 const create = (req, resp) => {
   const product = new ProductSchema({
+    category: req.body.category,
+    brand: req.body.brand,
     name: req.body.name,
     description: req.body.description,
     imageUrls: req.body.imageUrls,
@@ -52,6 +54,8 @@ const update = async (req, resp) => {
     { _id: req.params.id },
     {
       $set: {
+        category: req.body.category,
+        brand: req.body.brand,
         name: req.body.name,
         description: req.body.description,
         imageUrl: req.body.imageUrl,
@@ -91,22 +95,7 @@ const deleteById = async (req, resp) => {
 //------------------Product Find All--------------//
 const findAll = async (req, resp) => {
   try {
-    const { searchText, page = 1, size = 10 } = req.params;
-    const pageNumber = parseInt(page);
-    const pageSize = parseInt(size);
-
-    const query = {};
-
-    if (searchText) {
-      query.$text = { $search: searchText };
-    }
-
-    const skip = (pageNumber - 1) * pageSize;
-
-    const data = await ProductSchema.find(query)
-      .limit(pageSize)
-      .skip(skip)
-      .exec();
+    const data = await ProductSchema.find();
     resp.status(200).json(data);
   } catch (err) {
     return ResponseService(resp, 500, err.message);
@@ -124,6 +113,64 @@ const count = async (req, resp) => {
   }
 };
 
+//------------------Search Product----------------//
+const searchProducts = async (req, resp) => {
+  try {
+    const { query } = req.query;
+    let searchConditions = [];
+
+    if (query) {
+      const regexQuery = { $regex: query, $options: "i" };
+      searchConditions.push({ brand: regexQuery });
+      searchConditions.push({ name: regexQuery });
+      searchConditions.push({ category: regexQuery });
+    }
+
+    let mongoQuery = {};
+    if (searchConditions.length > 0) {
+      mongoQuery = { $or: searchConditions };
+    }
+
+    const products = await ProductSchema.find(mongoQuery);
+    resp.status(200).json(products);
+  } catch (err) {
+    return ResponseService(resp, 500, err.message);
+  }
+};
+
+//------------------------------------------------//
+
+//--------------------Qty Update-------------------//
+const updateQuantity = async (req, resp) => {
+  const productId = req.params.id;
+
+  // Check if qtyOnHand is provided in the request
+  if (req.body.qtyOnHand === undefined) {
+    return ResponseService(resp, 400, "Quantity not provided");
+  }
+
+  const newQuantity = req.body.qtyOnHand;
+
+  try {
+    const updatedProduct = await ProductSchema.findOneAndUpdate(
+      { _id: productId },
+      { $set: { qtyOnHand: newQuantity } },
+      { new: true }
+    );
+
+    if (updatedProduct) {
+      return ResponseService(resp, 200, "Product quantity updated successfully", updatedProduct);
+    } else {
+      return ResponseService(resp, 404, "Product not found with id " + productId);
+    }
+  } catch (error) {
+    console.error("Error updating product quantity:", error);
+    return ResponseService(resp, 500, "Error updating product quantity with id " + productId);
+  }
+};
+
+
+
 //------------------Export module----------------//
 module.exports = {
   create,
@@ -132,5 +179,7 @@ module.exports = {
   deleteById,
   findAll,
   count,
+  searchProducts,
+  updateQuantity
 };
 //------------------------------------------------//
